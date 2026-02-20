@@ -64,7 +64,7 @@ export function useUsage(): UseUsageResult | null {
           setData({
             wordsUsed: result.wordsUsed ?? 0,
             wordsRemaining: result.wordsRemaining ?? 0,
-            limit: result.limit ?? 2000,
+            limit: result.limit ?? 0, // FORK PATCH: default to 0 (unlimited) instead of 2000
             plan: result.plan ?? "free",
             status: result.status ?? "active",
             isSubscribed: result.isSubscribed ?? false,
@@ -141,15 +141,40 @@ export function useUsage(): UseUsageResult | null {
     }
   }, []);
 
-  if (!isSignedIn) return null;
+  // FORK PATCH: Never gate features on sign-in status or enforce word limits.
+  // When not signed in, return unlimited usage so no features are disabled.
+  if (!isSignedIn) {
+    return {
+      plan: "unlimited",
+      status: "active",
+      isPastDue: false,
+      wordsUsed: 0,
+      wordsRemaining: -1,
+      limit: 0,
+      isSubscribed: true,
+      isTrial: false,
+      trialDaysLeft: null,
+      currentPeriodEnd: null,
+      isOverLimit: false,
+      isApproachingLimit: false,
+      resetAt: null,
+      isLoading: false,
+      hasLoaded: true,
+      error: null,
+      checkoutLoading: false,
+      refetch: fetchUsage,
+      openCheckout,
+      openBillingPortal,
+    };
+  }
 
   const wordsUsed = data?.wordsUsed ?? 0;
-  const limit = data?.limit ?? 2000;
-  const isSubscribed = data?.isSubscribed ?? false;
+  const limit = data?.limit ?? 0; // FORK PATCH: default to 0 (unlimited) instead of 2000
+  const isSubscribed = data?.isSubscribed ?? true; // FORK PATCH: default to true
   const status = data?.status ?? "active";
-  const isPastDue = data?.plan === "pro" && status === "past_due";
-  const isOverLimit = !isSubscribed && limit > 0 && wordsUsed >= limit;
-  const isApproachingLimit = !isSubscribed && limit > 0 && wordsUsed >= limit * 0.8 && !isOverLimit;
+  const isPastDue = false; // FORK PATCH: never past due
+  const isOverLimit = false; // FORK PATCH: never over limit
+  const isApproachingLimit = false; // FORK PATCH: never approaching limit
 
   return {
     plan: data?.plan ?? "free",

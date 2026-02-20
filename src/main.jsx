@@ -309,9 +309,9 @@ function AppRouter() {
     if (isControlPanel) {
       if (!resolved) {
         setShowOnboarding(true);
-      } else if (!isSignedIn && !authSkipped) {
-        setNeedsReauth(true);
       }
+      // FORK PATCH: Re-authentication gate removed - never force re-auth
+      // Original code: else if (!isSignedIn && !authSkipped) { setNeedsReauth(true); }
     }
 
     if (isDictationPanel && !resolved) {

@@ -1,12 +1,44 @@
-# OpenWhispr
+# OpenWhispr Unchained
 
-[![Downloads](https://img.shields.io/github/downloads/OpenWhispr/openwhispr/total?style=flat&color=blue)](https://github.com/OpenWhispr/openwhispr/releases)
+> A fully unrestricted fork of [OpenWhispr](https://github.com/OpenWhispr/openwhispr) — no account required, no word limits, no feature gates.
 
-An open source desktop dictation application that converts speech to text using OpenAI Whisper. Features both local and cloud processing options for maximum flexibility and privacy.
+[![Upstream](https://img.shields.io/badge/upstream-OpenWhispr%2Fopenwhispr-blue)](https://github.com/OpenWhispr/openwhispr)
 
-## Star History
+An open source desktop dictation application that converts speech to text using OpenAI Whisper. Features both local and cloud processing options for maximum flexibility and privacy. **This fork removes all account requirements and usage restrictions** — every feature works out of the box, no sign-in needed.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=OpenWhispr/openwhispr&type=date&legend=top-left)](https://www.star-history.com/#OpenWhispr/openwhispr&type=date&legend=top-left)
+## What's Different From Upstream
+
+| Feature | Upstream OpenWhispr | Unchained |
+|---------|-------------------|-----------|
+| Account required | Yes (for cloud features) | No |
+| Word limit | 2,000 words/week (free tier) | Unlimited |
+| Upgrade prompts | Shown when limit reached | Removed |
+| Re-authentication gate | Forces re-login if signed out | Removed |
+| Billing/payment UI | Active | Disabled |
+| Local processing | Unlimited | Unlimited |
+| BYOK (own API keys) | Available | Available |
+
+**All changes are marked with `FORK PATCH` comments** for easy identification and maintenance.
+
+## Keeping Up With Upstream
+
+This fork is designed to stay in sync with upstream. After pulling updates:
+
+```bash
+# Pull latest from upstream
+git pull upstream main
+
+# The post-merge hook automatically checks for re-introduced restrictions
+# If issues are found, run manually:
+npm run verify-patches
+
+# If patches were overwritten, ask Claude Code:
+# "Re-apply the fork restriction removal patches. Run verify-patches to confirm."
+```
+
+The verification script (`scripts/verify-no-restrictions.sh`) runs 14 automated checks to detect if any restrictions were re-introduced by an upstream merge.
+
+---
 
 ## License
 
@@ -14,9 +46,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Features
 
-- ☁️ **OpenWhispr Cloud**: Sign in and transcribe instantly — no API keys needed, with free and Pro plans
-- 🔐 **Account System**: Google OAuth and email/password sign-in with email verification
-- 💳 **Subscription Management**: Free tier (2,000 words/week), Pro tier (unlimited), 7-day free trial
+- 🔓 **No Account Required**: All features work without signing in — no gates, no limits
 - 🎤 **Global Hotkey**: Customizable hotkey to start/stop dictation from anywhere (default: backtick `)
 - 🤖 **Multi-Provider AI Processing**: Choose between OpenAI, Anthropic Claude, Google Gemini, or local models
 - 🎯 **Agent Naming**: Personalize your AI assistant with a custom name for natural interactions
@@ -57,7 +87,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/OpenWhispr/openwhispr.git
+   git clone https://github.com/borng/openwhispr.git
    cd openwhispr
    ```
 
@@ -145,7 +175,7 @@ gcc -O2 windows-fast-paste.c -o windows-fast-paste.exe -luser32
 
 The build script (`scripts/build-windows-fast-paste.js`) first attempts to download a prebuilt binary from GitHub releases. If unavailable, it compiles from source using MSVC, MinGW-w64, or Clang. Falls back to `nircmd` or PowerShell `SendKeys` if neither option works.
 
-> ℹ️ **Note**: `CASCADIA_HOSTING_WINDOW_CLASS` covers all shells running inside Windows Terminal (PowerShell, CMD, WSL, etc.), so most modern Windows terminal usage is covered by a single class entry.
+> Info: `CASCADIA_HOSTING_WINDOW_CLASS` covers all shells running inside Windows Terminal (PowerShell, CMD, WSL, etc.), so most modern Windows terminal usage is covered by a single class entry.
 
 #### Linux (Multiple Package Formats)
 
@@ -311,23 +341,23 @@ sudo dnf install kdotool  # Fedora/RHEL
 sudo pacman -S kdotool    # Arch
 ```
 
-> ℹ️ **Note**: OpenWhispr automatically tries paste methods in this order: native `linux-fast-paste` binary (XTest or uinput) → `wtype` → `ydotool` → `xdotool` (for XWayland apps). If no paste method works, text will still be copied to the clipboard - you'll just need to paste manually with Ctrl+V.
+> Info: OpenWhispr automatically tries paste methods in this order: native `linux-fast-paste` binary (XTest or uinput) > `wtype` > `ydotool` > `xdotool` (for XWayland apps). If no paste method works, text will still be copied to the clipboard - you'll just need to paste manually with Ctrl+V.
 
-> ⚠️ **ydotool Requirements**: The `ydotoold` daemon must be running for ydotool to work. Start it manually with `sudo ydotoold &` or enable the systemd service as shown above.
+> Warning: The `ydotoold` daemon must be running for ydotool to work. Start it manually with `sudo ydotoold &` or enable the systemd service as shown above.
 
 **GNOME Wayland Global Hotkeys**:
 
 On GNOME Wayland, Electron's standard global shortcuts don't work due to Wayland's security model. OpenWhispr automatically uses native GNOME keyboard shortcuts via D-Bus and gsettings:
 
-- Hotkeys are registered as GNOME custom shortcuts (visible in Settings → Keyboard → Shortcuts)
+- Hotkeys are registered as GNOME custom shortcuts (visible in Settings > Keyboard > Shortcuts)
 - Default hotkey is `Alt+R` (backtick not supported on GNOME Wayland)
 - **Push-to-talk mode is not available** on GNOME Wayland (only tap-to-talk)
 - Falls back to X11/XWayland shortcuts if GNOME integration fails
 - No additional dependencies required - uses `dbus-next` npm package
 
-> ℹ️ **GNOME Wayland Limitation**: GNOME system shortcuts only fire a single toggle event (no key-up detection), so push-to-talk mode cannot work. The app automatically uses tap-to-talk mode on GNOME Wayland.
+> Info: GNOME system shortcuts only fire a single toggle event (no key-up detection), so push-to-talk mode cannot work. The app automatically uses tap-to-talk mode on GNOME Wayland.
 
-> 🔒 **Flatpak Security**: The Flatpak package includes sandboxing with explicit permissions for microphone, clipboard, and file access. See [electron-builder.json](electron-builder.json) for the complete permission list.
+> Note: The Flatpak package includes sandboxing with explicit permissions for microphone, clipboard, and file access. See [electron-builder.json](electron-builder.json) for the complete permission list.
 
 ### Building for Distribution
 
@@ -343,9 +373,9 @@ npm run build:linux  # Linux
 ### First Time Setup
 
 1. **Choose Processing Method**:
-   - **OpenWhispr Cloud**: Sign in for instant cloud transcription with free and Pro plans
    - **Bring Your Own Key**: Use your own OpenAI/Groq/AssemblyAI API keys
    - **Local Processing**: Download Whisper or Parakeet models for completely private transcription
+   - **OpenWhispr Cloud**: Optionally sign in for cloud transcription (no restrictions either way)
 
 2. **Grant Permissions**:
    - **Microphone Access**: Required for voice recording
@@ -379,7 +409,7 @@ npm run build:linux  # Linux
 
 ### Uninstall & Cache Cleanup
 
-- **In-App**: Use _Settings → General → Local Model Storage → Remove Downloaded Models_ to clear `~/.cache/openwhispr/whisper-models` (or `%USERPROFILE%\.cache\openwhispr\whisper-models` on Windows).
+- **In-App**: Use _Settings > General > Local Model Storage > Remove Downloaded Models_ to clear `~/.cache/openwhispr/whisper-models` (or `%USERPROFILE%\.cache\openwhispr\whisper-models` on Windows).
 - **Windows Uninstall**: The NSIS uninstaller automatically deletes the same cache directory.
 - **Linux Packages**: `deb`/`rpm` post-uninstall scripts also remove cached models.
 - **macOS**: If you uninstall manually, remove `~/Library/Caches` or `~/.cache/openwhispr/whisper-models` if desired.
@@ -388,14 +418,14 @@ npm run build:linux  # Linux
 
 Once you've named your agent during setup, you can interact with it using multiple AI providers:
 
-**🎯 Agent Commands** (for AI assistance):
+**Agent Commands** (for AI assistance):
 
 - "Hey [AgentName], make this more professional"
 - "Hey [AgentName], format this as a list"
 - "Hey [AgentName], write a thank you email"
 - "Hey [AgentName], convert this to bullet points"
 
-**🤖 AI Provider Options**:
+**AI Provider Options**:
 
 - **OpenAI**: GPT-5, GPT-4.1, o-series reasoning models
 - **Anthropic**: Claude Opus 4.5, Sonnet 4.5, Haiku 4.5
@@ -403,7 +433,7 @@ Once you've named your agent during setup, you can interact with it using multip
 - **Groq**: Ultra-fast Llama and Mixtral inference
 - **Local**: Qwen, LLaMA, Mistral via llama.cpp
 
-**📝 Regular Dictation** (for normal text):
+**Regular Dictation** (for normal text):
 
 - "This is just normal text I want transcribed"
 - "Meeting notes: John mentioned the quarterly report"
@@ -415,7 +445,7 @@ The AI automatically detects when you're giving it commands versus dictating reg
 
 Improve transcription accuracy for specific words, names, or technical terms:
 
-1. **Access Settings**: Open Control Panel → Settings → Custom Dictionary
+1. **Access Settings**: Open Control Panel > Settings > Custom Dictionary
 2. **Add Words**: Enter words, names, or phrases that are frequently misrecognized
 3. **How It Works**: Words are provided as context hints to the speech recognition model
 
@@ -428,10 +458,6 @@ Improve transcription accuracy for specific words, names, or technical terms:
 
 ### Processing Options
 
-- **OpenWhispr Cloud**:
-  - Sign in with Google or email — no API keys needed
-  - Free plan: 2,000 words/week with 7-day Pro trial for new accounts
-  - Pro plan: unlimited transcriptions
 - **Bring Your Own Key (BYOK)**:
   - Use your own API keys from OpenAI, Groq, Mistral, AssemblyAI, or custom endpoints
   - Full control over provider and model selection
@@ -439,6 +465,9 @@ Improve transcription accuracy for specific words, names, or technical terms:
   - Install Whisper or NVIDIA Parakeet through the Control Panel
   - Download models: tiny (fastest), base (recommended), small, medium, large (best quality)
   - Complete privacy - audio never leaves your device
+- **OpenWhispr Cloud** (optional):
+  - Sign in with Google or email if you want cloud transcription
+  - No restrictions in this fork — works the same whether signed in or not
 
 ## Project Structure
 
@@ -475,6 +504,8 @@ open-whispr/
 │   ├── utils/
 │   │   └── agentName.ts         # Agent name management utility
 │   └── components.json          # shadcn/ui configuration
+├── scripts/
+│   └── verify-no-restrictions.sh  # Fork patch verification (14 checks)
 └── assets/                      # App icons and resources
 ```
 
@@ -495,6 +526,7 @@ open-whispr/
 - `npm run dev` - Start development with hot reload
 - `npm run start` - Start production build
 - `npm run setup` - First-time setup (creates .env file)
+- `npm run verify-patches` - Verify fork restriction patches are intact
 - `npm run build:renderer` - Build the React app only
 - `npm run download:whisper-cpp` - Download whisper.cpp for the current platform
 - `npm run download:whisper-cpp:all` - Download whisper.cpp for all platforms
@@ -631,7 +663,7 @@ OpenWhispr also supports NVIDIA Parakeet models via sherpa-onnx - a fast alterna
 ### Customization
 
 - **Hotkey**: Change in the Control Panel (default: backtick `) - fully customizable
-- **Panel Position**: Drag the dictation panel to any location on your screen`
+- **Panel Position**: Drag the dictation panel to any location on your screen
 - **Processing Method**: Choose local or cloud in Control Panel
 - **Whisper Model**: Select quality vs speed in Control Panel
 - **UI Theme**: Edit CSS variables in `src/index.css`
@@ -654,6 +686,7 @@ We welcome contributions! Please follow these steps:
 - Follow the existing code style
 - Update documentation as needed
 - Test on your target platform before submitting
+- All restriction patches should include `FORK PATCH` comments
 
 ## Security
 
@@ -671,7 +704,7 @@ OpenWhispr is designed with privacy and security in mind:
 
 1. **Microphone permissions**: Grant permissions in System Preferences/Settings
 2. **Accessibility permissions (macOS)**: Required for automatic text pasting
-   - Go to System Settings → Privacy & Security → Accessibility
+   - Go to System Settings > Privacy & Security > Accessibility
    - Add OpenWhispr and enable the checkbox
    - Use "Fix Permission Issues" in Control Panel if needed
 3. **API key errors** (cloud processing only): Ensure your OpenAI API key is valid and has credits
@@ -682,9 +715,9 @@ OpenWhispr is designed with privacy and security in mind:
    - If bundled binary fails, install via `brew install whisper-cpp` (macOS)
    - Check available disk space for models
 5. **Global hotkey conflicts**: Change the hotkey in the Control Panel - any key can be used
-   - GNOME Wayland: Hotkeys are registered via gsettings; check Settings → Keyboard → Shortcuts for conflicts
+   - GNOME Wayland: Hotkeys are registered via gsettings; check Settings > Keyboard > Shortcuts for conflicts
 6. **Text not pasting**:
-   - macOS: Check accessibility permissions (System Settings → Privacy & Security → Accessibility)
+   - macOS: Check accessibility permissions (System Settings > Privacy & Security > Accessibility)
    - Linux X11: Install `xdotool`
    - Linux Wayland: Install `wtype` or `ydotool` for paste simulation (ensure `ydotoold` daemon is running)
    - All platforms: Text is always copied to clipboard - use Ctrl+V (Cmd+V on macOS) to paste manually
@@ -692,26 +725,26 @@ OpenWhispr is designed with privacy and security in mind:
 
 ### Getting Help
 
-- Check the [Issues](https://github.com/OpenWhispr/openwhispr/issues) page
+- Check the [Issues](https://github.com/borng/openwhispr/issues) page
 - Review the console logs for debugging information
 - For local processing: Ensure whisper.cpp is accessible and models are downloaded
-- For cloud processing: Verify your OpenAI API key and billing status
+- For cloud processing: Verify your API key and billing status
 - Check the Control Panel for system status and diagnostics
 
 ### Performance Tips
 
 - **Local Processing**: Use "base" model for best balance of speed and accuracy
 - **Cloud Processing**: Generally faster but requires internet connection
-- **Model Selection**: tiny (fastest) → base (recommended) → small → medium → large (best quality)
+- **Model Selection**: tiny (fastest) > base (recommended) > small > medium > large (best quality)
 - **Permissions**: Ensure all required permissions are granted for smooth operation
 
 ## FAQ
 
-**Q: Is OpenWhispr really free?**
-A: Yes! OpenWhispr is open source and free to use. The free plan includes 2,000 words/week of cloud transcription, and local processing is completely free with no limits. Pro plan ($9/month) offers unlimited cloud transcription.
+**Q: Do I need an account?**
+A: No. This fork removes all account requirements. Every feature works without signing in.
 
 **Q: Which processing method should I use?**
-A: Use local processing for privacy and offline use. Use cloud processing for speed and convenience.
+A: Use local processing for privacy and offline use. Use cloud processing (with your own API keys) for speed and convenience.
 
 **Q: Can I use this commercially?**
 A: Yes! The MIT license allows commercial use.
@@ -720,29 +753,32 @@ A: Yes! The MIT license allows commercial use.
 A: Open the Control Panel (right-click tray icon) and go to Settings. You can set any key as your hotkey.
 
 **Q: Is my data secure?**
-A: With local processing, your audio never leaves your device. With cloud processing, audio is sent to OpenAI's servers (see their privacy policy).
+A: With local processing, your audio never leaves your device. With cloud processing, audio is sent to your configured API provider (see their privacy policy).
 
 **Q: What languages are supported?**
 A: OpenWhispr supports 58 languages including English, Spanish, French, German, Chinese, Japanese, and more. Set your preferred language in the .env file or use auto-detect.
 
+**Q: How do I stay updated with upstream?**
+A: Run `git pull upstream main` and then `npm run verify-patches` to check that no restrictions were re-introduced.
+
 ## Project Status
 
-OpenWhispr is actively maintained and ready for production use. Current version: 1.4.10
+OpenWhispr Unchained is actively maintained. Current upstream version: 1.4.11
 
-- ✅ Core functionality complete
-- ✅ Cross-platform support (macOS, Windows, Linux)
-- ✅ OpenWhispr Cloud with account system and usage tracking
-- ✅ Free and Pro plans with Stripe billing
-- ✅ Local and cloud processing
-- ✅ Multi-provider AI (OpenAI, Anthropic, Gemini, Groq, Mistral, Local)
-- ✅ Compound hotkey support
-- ✅ Windows Push-to-Talk with native key listener
-- ✅ Custom dictionary for improved transcription accuracy
-- ✅ NVIDIA Parakeet support via sherpa-onnx
-- ✅ GNOME Wayland native global shortcuts
+- Unrestricted — no account gates, no word limits, no upgrade prompts
+- Cross-platform support (macOS, Windows, Linux)
+- Local and cloud processing
+- Multi-provider AI (OpenAI, Anthropic, Gemini, Groq, Mistral, Local)
+- Compound hotkey support
+- Windows Push-to-Talk with native key listener
+- Custom dictionary for improved transcription accuracy
+- NVIDIA Parakeet support via sherpa-onnx
+- GNOME Wayland native global shortcuts
+- Automated patch verification for upstream sync
 
 ## Acknowledgments
 
+- **[OpenWhispr](https://github.com/OpenWhispr/openwhispr)** - The original project this fork is based on
 - **[OpenAI Whisper](https://github.com/openai/whisper)** - The speech recognition model that powers both local and cloud transcription
 - **[whisper.cpp](https://github.com/ggerganov/whisper.cpp)** - High-performance C++ implementation of Whisper for local processing
 - **[NVIDIA Parakeet](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3)** - Fast ASR model for efficient local transcription

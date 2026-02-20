@@ -13,12 +13,14 @@ interface UpgradePromptProps {
 export default function UpgradePrompt({
   open,
   onOpenChange,
-  wordsUsed = 2000,
-  limit = 2000,
+  wordsUsed = 0,
+  limit = 0,
 }: UpgradePromptProps) {
+  // FORK PATCH: This component should never be shown (limit enforcement removed)
+  // but if it is somehow rendered, defaults are set to 0 to avoid showing limits
   const { t } = useTranslation();
   const usage = useUsage();
-  const isPastDue = usage?.isPastDue ?? false;
+  const isPastDue = false; // FORK PATCH: never past due
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

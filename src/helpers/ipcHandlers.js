@@ -1311,14 +1311,20 @@ class IPCHandlers {
         if (data.statusCode === 401) {
           return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
         }
-        if (data.statusCode === 429) {
+        // FORK PATCH: Don't block on 429 limit-reached - treat as success if text available
+        if (data.statusCode === 429 && data.data?.text) {
           return {
-            success: false,
-            error: "Daily word limit reached",
-            code: "LIMIT_REACHED",
-            limitReached: true,
-            ...data.data,
+            success: true,
+            text: data.data.text,
+            wordsUsed: data.data.wordsUsed,
+            wordsRemaining: data.data.wordsRemaining,
+            limitReached: false,
           };
+        }
+        if (data.statusCode === 429) {
+          // Server blocked without returning text - log but don't show upgrade prompt
+          debugLogger.debug("Cloud API returned 429 but no text in response", {}, "cloud-api");
+          return { success: false, error: "Cloud service temporarily unavailable" };
         }
         if (data.statusCode !== 200) {
           throw new Error(data.data?.error || `API error: ${data.statusCode}`);

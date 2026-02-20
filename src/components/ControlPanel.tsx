@@ -100,39 +100,10 @@ export default function ControlPanel() {
     }
   }, [updateError, toast, t]);
 
-  useEffect(() => {
-    const dispose = window.electronAPI?.onLimitReached?.(
-      (data: { wordsUsed: number; limit: number }) => {
-        if (!hasShownUpgradePrompt.current) {
-          hasShownUpgradePrompt.current = true;
-          setLimitData(data);
-          setShowUpgradePrompt(true);
-        } else {
-          toast({
-            title: t("controlPanel.limit.weeklyTitle"),
-            description: t("controlPanel.limit.weeklyDescription"),
-            duration: 5000,
-          });
-        }
-      }
-    );
+  // FORK PATCH: Upgrade prompt listener disabled - no usage restrictions
+  // Original code listened for onLimitReached events and showed UpgradePrompt
 
-    return () => {
-      dispose?.();
-    };
-  }, [toast, t]);
-
-  useEffect(() => {
-    if (!usage?.isPastDue || !usage.hasLoaded) return;
-    if (sessionStorage.getItem("pastDueNotified")) return;
-    sessionStorage.setItem("pastDueNotified", "true");
-    toast({
-      title: t("controlPanel.billing.pastDueTitle"),
-      description: t("controlPanel.billing.pastDueDescription"),
-      variant: "destructive",
-      duration: 8000,
-    });
-  }, [usage?.isPastDue, usage?.hasLoaded, toast, t]);
+  // FORK PATCH: Past-due billing notification disabled - no payment restrictions
 
   useEffect(() => {
     if (!authLoaded || !isSignedIn || cloudMigrationProcessed.current) return;
@@ -380,36 +351,7 @@ export default function ControlPanel() {
 
       <div className="p-4">
         <div className="max-w-3xl mx-auto">
-          {usage?.isPastDue && (
-            <div className="mb-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 p-3">
-              <div className="flex items-start gap-3">
-                <div className="shrink-0 w-8 h-8 rounded-md bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                  <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-amber-900 dark:text-amber-200 mb-0.5">
-                    {t("controlPanel.billing.pastDueTitle")}
-                  </p>
-                  <p className="text-[12px] text-amber-700 dark:text-amber-300/80 mb-2">
-                    {t("controlPanel.billing.bannerDescription", {
-                      limit: usage.limit.toLocaleString(),
-                    })}
-                  </p>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="h-7 text-[11px]"
-                    onClick={() => {
-                      setSettingsSection("account");
-                      setShowSettings(true);
-                    }}
-                  >
-                    {t("controlPanel.billing.updatePayment")}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* FORK PATCH: Past-due billing banner removed - no payment restrictions */}
 
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2">

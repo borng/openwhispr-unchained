@@ -2,6 +2,46 @@
 
 This document provides comprehensive technical details about the OpenWhispr project architecture for AI assistants working on the codebase.
 
+## Fork Customizations (IMPORTANT - Read First)
+
+This is a fork of [OpenWhispr/openwhispr](https://github.com/OpenWhispr/openwhispr). The following customizations MUST be maintained when pulling from upstream:
+
+### Account & Usage Restrictions Removed
+
+All account/login requirements are optional. No features are gated behind sign-in status. The 2,000 word limit and all usage restrictions are removed.
+
+**Modified files (look for `FORK PATCH` comments):**
+
+1. **`src/hooks/useUsage.ts`** - Returns unlimited usage when not signed in (instead of `null`). Default limit changed from 2000 to 0. `isOverLimit`, `isApproachingLimit`, and `isPastDue` are hardcoded to `false`.
+
+2. **`src/hooks/useAudioRecording.js`** - `notifyLimitReached` call removed. Transcriptions are never blocked by usage limits.
+
+3. **`src/helpers/ipcHandlers.js`** - HTTP 429 responses from cloud API no longer return `LIMIT_REACHED` error. If the 429 response contains transcribed text, it's returned as success.
+
+4. **`src/components/ControlPanel.tsx`** - `onLimitReached` event listener removed. Past-due billing banner and toast removed.
+
+5. **`src/components/UpgradePrompt.tsx`** - Default values changed from 2000 to 0. `isPastDue` hardcoded to `false`. Component should never be shown, but is safe if rendered.
+
+### Verification & Upstream Merge Protection
+
+- **`scripts/verify-no-restrictions.sh`** - Run after pulling from upstream. Checks all patches are intact. Exit code 0 = OK, 1 = restrictions re-introduced.
+- **`.git/hooks/post-merge`** - Automatically runs the verification script after every `git pull` or `git merge`.
+
+### How to Re-Apply Patches After Upstream Merge
+
+If `verify-no-restrictions.sh` reports failures after an upstream pull:
+
+1. Run `bash scripts/verify-no-restrictions.sh` to see which patches were overwritten
+2. Search for `FORK PATCH` comments in the codebase to see the expected patterns
+3. Ask Claude Code: *"Re-apply the fork restriction removal patches. Run verify-no-restrictions.sh to confirm."*
+4. Each patch is marked with `FORK PATCH` comments explaining what was changed and why
+
+### Key Principle
+
+Every patched line has a `FORK PATCH` comment. When resolving merge conflicts with upstream, always keep the `FORK PATCH` version. If upstream adds NEW restriction code, apply the same pattern: disable the restriction and add a `FORK PATCH` comment.
+
+---
+
 ## Project Overview
 
 OpenWhispr is an Electron-based desktop dictation application that uses whisper.cpp for speech-to-text transcription. It supports both local (privacy-focused) and cloud (OpenAI API) processing modes.

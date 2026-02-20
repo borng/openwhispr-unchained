@@ -47,6 +47,7 @@
     "quality-check": "npm run format:check && npm run typecheck",
     "i18n:check": "node scripts/check-i18n.js",
     "preview": "cd src && vite preview",
+    "verify-patches": "bash scripts/verify-no-restrictions.sh",
     "clean": "node cleanup.js"
   },
   "keywords": [
