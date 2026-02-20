@@ -193,8 +193,8 @@
   },
   "publish": {
     "provider": "github",
-    "owner": "OpenWhispr",
-    "repo": "openwhispr",
+    "owner": "borng",
+    "repo": "openwhispr-unchained",
     "private": false,
     "releaseType": "draft"
   }

@@ -87,8 +87,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/borng/openwhispr.git
-   cd openwhispr
+   git clone https://github.com/borng/openwhispr-unchained.git
+   cd openwhispr-unchained
    ```
 
 2. **Install dependencies**:
@@ -725,7 +725,7 @@ OpenWhispr is designed with privacy and security in mind:
 
 ### Getting Help
 
-- Check the [Issues](https://github.com/borng/openwhispr/issues) page
+- Check the [Issues](https://github.com/borng/openwhispr-unchained/issues) page
 - Review the console logs for debugging information
 - For local processing: Ensure whisper.cpp is accessible and models are downloaded
 - For cloud processing: Verify your API key and billing status
