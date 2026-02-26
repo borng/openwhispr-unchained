@@ -154,6 +154,18 @@ jobs:
           $fileArgs = $files | ForEach-Object { $_.FullName }
           gh release upload "${{ github.ref_name }}" $fileArgs --clobber
 
+      - name: Upload Windows setup artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-setup
+          path: |
+            dist/*Setup*.exe
+            dist/*Setup*.exe.blockmap
+            dist/latest.yml
+          if-no-files-found: warn
+          retention-days: 7
+
   build-macos:
     continue-on-error: true
     runs-on: macos-latest
