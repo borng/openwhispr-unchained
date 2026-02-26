@@ -136,34 +136,23 @@ jobs:
           VITE_OPENWHISPR_API_URL: ${{ vars.VITE_OPENWHISPR_API_URL }}
           VITE_OPENWHISPR_OAUTH_CALLBACK_URL: ${{ vars.VITE_OPENWHISPR_OAUTH_CALLBACK_URL }}
 
-      - name: Download Windows release assets to dist
+      - name: Ensure Windows assets are uploaded to release
+        if: always()
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
         run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $patterns = @("latest.yml", "*Setup*.exe", "*Setup*.exe.blockmap")
-          $max = 5
-          for ($i = 1; $i -le $max; $i++) {
-            Write-Host "Attempt $i/$max: downloading release assets..."
-            $ok = $true
-            foreach ($pattern in $patterns) {
-              gh release download "${{ github.ref_name }}" -p $pattern -D dist --clobber
-              if ($LASTEXITCODE -ne 0) {
-                $ok = $false
-              }
-            }
-            if ($ok) { break }
-            Start-Sleep -Seconds (5 * $i)
+          $patterns = @("*Setup*.exe", "*Setup*.exe.blockmap", "latest.yml")
+          $files = @()
+          foreach ($pattern in $patterns) {
+            $files += Get-ChildItem -Path dist -Filter $pattern -File -ErrorAction SilentlyContinue
           }
-
-      - name: Upload Windows dist artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-dist
-          path: dist/
-          retention-days: 7
+          if ($files.Count -eq 0) {
+            Write-Host "No Windows release assets found in dist/"
+            exit 0
+          }
+          $fileArgs = $files | ForEach-Object { $_.FullName }
+          gh release upload "${{ github.ref_name }}" $fileArgs --clobber
 
   build-macos:
     continue-on-error: true
