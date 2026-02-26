@@ -76,6 +76,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure GitHub release exists
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          gh release view $tag --repo ${{ github.repository }} | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo ${{ github.repository }} --draft --title $tag
+          }
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
